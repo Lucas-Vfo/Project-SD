@@ -1,35 +1,94 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
+import React from 'react';
+import Head from 'next/head';
+import jwt from 'jsonwebtoken';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+
 
 export default function Login() {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  const router = useRouter();
+
+  function decodeJWT(token:string){
+    try {
+      const decoded = jwt.decode(token);
+      console.log(decoded);
+      return decoded;
+    } catch (error) {
+      console.log('Error al decodificar el token', error);
+      return null;
+    }
+  }
+
+  function login() {
+    var myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+
+    var raw = JSON.stringify({
+      username: username,
+      password: password,
+    });
+
+    fetch('http://localhost:3001/api/login', {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow',
+    })
+      .then((response) => response.json()) // Asegúrate de que el servidor responda con JSON
+      .then((result) => {
+        // Aquí es donde guardas el token en localStorage
+        if (result.token) {
+          localStorage.setItem('token', result.token);
+          router.push('/dashboard');
+        } else {
+          console.log('No se recibió token:', result);
+        }
+      })
+      .catch((error) => {
+        console.log('Error en la solicitud de login:', error);
+      });
+  }
+
   return (
     <>
-      <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css')</style>
-      
+      <Head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css" />
+      </Head>
       <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-        <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12">Log in to your account</h1>
+        <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12">Ingrese a su cuenta</h1>
         </div>
 
         <div className='mt-10 sm:mx-auto sm:w-full sm:max-w-sm'>
-          <form className='space-y-6' action='#' method='POST'>
+          <form className='space-y-6'>
             <div>
-              <label htmlFor='email' className='block text-sm font-medium leading-6 text-gray-900'>
+              <label htmlFor='username' className='block text-sm font-medium leading-6 text-gray-900'>
                 Correo Electrónico
               </label>
               <div className='flex'>
               <div className="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center"><i className="mdi mdi-email-outline text-gray-400 text-lg"></i></div>
                 <input
-                  id='email'
-                  name='email'
+                  id='username'
+                  name='username'
                   type='email'
-                  autoComplete='email'
+                  autoComplete='username'
                   required
                   placeholder="correo@example.com"
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                  }}
                   className=' w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500'
                 />
               </div>
             </div>
+          
 
             <div>
               <div className='flex items-center justify-between'>
@@ -51,6 +110,9 @@ export default function Login() {
                   autoComplete='current-password'
                   required
                   placeholder= "************"
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
                   className='w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500'
                 />
               </div>
@@ -59,6 +121,9 @@ export default function Login() {
             <div>
               <button
                 type='submit'
+                onClick={() => {
+                  login();
+                }}
                 className='block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold'
               >
                 Identificate

@@ -1,14 +1,16 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Head from 'next/head';
 
 export default function Login() {
   return (
     <>
-      <style>@import url('https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css')</style>
-      
+      <Head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css" />
+      </Head>
       <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-        <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12">Log in to your account</h1>
+        <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12">Ingrese a su cuenta</h1>
         </div>
 
         <div className='mt-10 sm:mx-auto sm:w-full sm:max-w-sm'>
