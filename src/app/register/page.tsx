@@ -23,7 +23,7 @@ function registerUser(){
     password: password,
   });
 
-  fetch('http://localhost:3003/api/register', {
+  fetch('http://localhost:3002/api/register', {
     method: 'POST',
     headers: myHeaders,
     body: raw,

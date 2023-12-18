@@ -1,8 +1,63 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
 import Head from 'next/head';
+import { useState } from 'react';
+import FormAlert from '@/../components/formAlert';
 
 export default function Recovery() {
+  const [email, setEmail] = useState('');
+  const [tokenSended, SetTokenSended] = useState(false);
+  const [token, setToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [passwordRecovered, setPasswordRecovered] = useState(false);
+  function requestPasswordReset() {
+    var myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+
+    var raw = JSON.stringify({
+      email: email,
+    });
+
+    fetch('http://localhost:3005/api/auth/request-reset', {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow',
+    })
+      .then((response) => response.text())
+      .then((result) => {
+        result ? setMessage(result) : '';
+        tokenSended ? '' : SetTokenSended(true);
+      })
+      .catch((error) => console.log('error', error));
+  }
+
+  function changePassword() {
+    var myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+
+    var raw = JSON.stringify({
+      token: token,
+      newPassword: newPassword,
+    });
+
+    fetch('http://localhost:3005/api/auth/reset', {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow',
+    })
+      .then((response) => response.text())
+      .then((result) => {
+        result ? setMessage(result) : '';
+        tokenSended ? '' : SetTokenSended(true);
+        setPasswordRecovered(true);
+      })
+      .catch((error) => console.log('error', error));
+  }
+
   return (
     <>
       <Head>
