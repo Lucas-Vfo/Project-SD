@@ -1,112 +1,55 @@
-'use client';
-import Image from 'next/image';
-import Link from 'next/link';
-import Head from 'next/head';
-import { useState } from 'react';
-import FormAlert from '@/../components/formAlert';
+'use client'
 
-export default function Recovery() {
-  const [email, setEmail] = useState('');
-  const [tokenSended, SetTokenSended] = useState(false);
-  const [token, setToken] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [passwordRecovered, setPasswordRecovered] = useState(false);
-  function requestPasswordReset() {
-    var myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
+import { Form } from '@/components/Form'
+import { useAuthFetch } from '@/hooks/useAuthFetch'
+import { useLoading } from '@/hooks/useLoading'
 
-    var raw = JSON.stringify({
-      email: email,
+export default function ForgetPasswordPage () {
+  const { finishLoading, isLoading, startLoading } = useLoading()
+  const authFetch = useAuthFetch()
+
+  const forgetPassword = async (formData: any) => {
+    startLoading()
+
+    const requestResetData = {
+      email: formData.email,
+    };
+
+    await authFetch({
+      endpoint: 'auth/request-reset',
+      redirectRoute: '/',
+      formData: requestResetData,
+      options: {
+        method: 'POST',
+        baseURL: 'http://localhost:3003',
+      },
     });
-
-    fetch('http://localhost:3005/api/auth/request-reset', {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow',
-    })
-      .then((response) => response.text())
-      .then((result) => {
-        result ? setMessage(result) : '';
-        tokenSended ? '' : SetTokenSended(true);
-      })
-      .catch((error) => console.log('error', error));
-  }
-
-  function changePassword() {
-    var myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
-
-    var raw = JSON.stringify({
-      token: token,
-      newPassword: newPassword,
-    });
-
-    fetch('http://localhost:3005/api/auth/reset', {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow',
-    })
-      .then((response) => response.text())
-      .then((result) => {
-        result ? setMessage(result) : '';
-        tokenSended ? '' : SetTokenSended(true);
-        setPasswordRecovered(true);
-      })
-      .catch((error) => console.log('error', error));
+    finishLoading()
   }
 
   return (
     <>
-      <Head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css" />
-      </Head>
-
-      <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
-        <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-        <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12">Recuperar Contraseña</h1>
+      <Form
+        title='Recuperar contraseña'
+        onSubmit={forgetPassword}
+      >
+        <div className='my-[10px] flex flex-col gap-4'>
+          <Form.Input
+            label='Correo'
+            name='email'
+            placeholder='correo@example.com'
+          />
         </div>
-
-        <div className='mt-10 sm:mx-auto sm:w-full sm:max-w-sm'>
-          <form className='space-y-6' action='#' method='POST'>
-          <div>
-              <label htmlFor='email' className='block text-sm font-medium leading-6 text-gray-900'>
-                Correo Electrónico
-              </label>
-              <div className='flex'>
-              <div className="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center"><i className="mdi mdi-email-outline text-gray-400 text-lg"></i></div>
-                <input
-                  id='email'
-                  name='email'
-                  type='email'
-                  autoComplete='email'
-                  required
-                  placeholder="correo@example.com"
-                  className=' w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500'
-                />
-              </div>
-            </div>
-
-            <div>
-            <button
-                type='submit'
-                className='block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold'
-              >
-                Identificate por Correo Electrónico
-              </button>
-            </div>
-          </form>
-
-          <p className='mt-10 text-center text-sm text-gray-500'>
-            ¿Aun no eres miembro?{' '}
-            <Link href='/register' className='font-semibold leading-6 text-indigo-600 hover:text-indigo-500'>
-              Regístrate Gratis
-            </Link>
-          </p>
-        </div>
-      </div>
+        <Form.SubmitButton
+          buttonText='Recuperar Contraseña'
+          isLoading={isLoading}
+        />
+        <Form.Footer
+          description='Volver al inicio'
+          textLink='Inicio'
+          link='/'
+        />
+      </Form>
     </>
-  );
+  )
 }
